@@ -1,0 +1,86 @@
+# docker-compose.yml
+
+version: '3.9'
+
+services:
+
+  complianceone-api:
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: complianceone-api
+
+    restart: unless-stopped
+
+    ports:
+      - "8080:8080"
+
+    environment:
+
+      SPRING_PROFILES_ACTIVE: dev
+
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: complianceone
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+      JWT_SECRET: super-secret-jwt-key
+
+    depends_on:
+      - postgres
+
+    networks:
+      - compliance-network
+
+  postgres:
+
+    image: postgres:16
+
+    container_name: complianceone-postgres
+
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: complianceone
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+    networks:
+      - compliance-network
+
+  pgadmin:
+
+    image: dpage/pgadmin4
+
+    container_name: complianceone-pgadmin
+
+    restart: unless-stopped
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@complianceone.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+
+    ports:
+      - "5050:80"
+
+    depends_on:
+      - postgres
+
+    networks:
+      - compliance-network
+
+volumes:
+  postgres-data:
+
+networks:
+  compliance-network:
+    driver: bridge
