@@ -76,8 +76,7 @@ public class OcorrenciaService {
                 ocorrencia.getId(),
                 ocorrencia.getProtocolo(),
                 ocorrencia.getStatus(),
-                ocorrencia.getDataCriacao()
-        );
+                ocorrencia.getDataCriacao());
     }
 
     private String gerarProtocolo() {

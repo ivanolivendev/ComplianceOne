@@ -1,38 +1,60 @@
 package org.compilaceone.complianceone.security.service;
 
-
 import lombok.RequiredArgsConstructor;
 import org.compilaceone.complianceone.security.dto.LoginRequestDTO;
 import org.compilaceone.complianceone.security.dto.LoginResponseDTO;
 import org.compilaceone.complianceone.security.entity.User;
 import org.compilaceone.complianceone.security.repository.UserRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final JwtService jwtService;
-    private final PasswordEncoder passwordEncoder;
+    private final JwtEncoder jwtEncoder;
+    private final AuthenticationManager authenticationManager;
 
     public LoginResponseDTO login(LoginRequestDTO request) {
 
-        User user = userRepository.findByEmail(request.email())
-                .orElseThrow();
-
-        boolean passwordMatches = passwordEncoder.matches(
-                request.password(),
-                user.getPassword()
-        );
-
-        if (!passwordMatches) {
-            throw new RuntimeException("Invalid credentials");
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.email(),
+                            request.password()
+                    )
+            );
+        } catch (AuthenticationException e) {
+            throw new BadCredentialsException("Email ou senha inválidos");
         }
 
-        String token = jwtService.generateToken(user.getEmail());
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new BadCredentialsException("Email ou senha inválidos"));
 
-        return new LoginResponseDTO(token);
+        var now = Instant.now();
+        var expiresIn = 86400L; // 24 horas em segundos
+
+        var claims = JwtClaimsSet.builder()
+                .issuer("mybackend")
+                .subject(user.getId().toString())
+                .issuedAt(now)
+                .expiresAt(now.plusSeconds(expiresIn))
+                .claim("role", user.getRole().name())
+                .build();
+
+        String token = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+
+        return new LoginResponseDTO(token, expiresIn);
     }
 }
