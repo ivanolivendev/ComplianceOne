@@ -2,12 +2,14 @@ FROM eclipse-temurin:21-jdk
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y maven
+
+COPY pom.xml .
+
+RUN mvn dependency:go-offline
+
 COPY . .
-
-RUN chmod +x mvnw
-
-RUN ./mvnw clean package -DskipTests
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "target/complianceone-0.0.1-SNAPSHOT.jar"]
+CMD ["mvn", "spring-boot:run"]

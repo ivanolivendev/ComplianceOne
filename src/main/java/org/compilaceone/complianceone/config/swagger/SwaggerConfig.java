@@ -18,10 +18,10 @@ public class SwaggerConfig {
                         .description("Plataforma de Governança, Compliance e Inteligência Organizacional")
                         .version("v0.0.1")
                         .contact(new Contact()
-                                .name("Suporte ComplianceOne")
-                                .email("suporte@complianceone.com.br"))
+                                .name("Ivan Oliveira")
+                                .email("ivanolivendev@protonmail.com"))
                         .license(new License()
-                                .name("Apache 2.0")
+                                .name("MIT")
                                 .url("http://springdoc.org")));
     }
 }

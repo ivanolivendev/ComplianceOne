@@ -2,15 +2,16 @@ package org.compilaceone.complianceone.ocorrencia.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.compilaceone.complianceone.ocorrencia.domain.enums.StatusOcorrencia;
 import org.compilaceone.complianceone.ocorrencia.dto.CriarOcorrenciaRequest;
 import org.compilaceone.complianceone.ocorrencia.dto.OcorrenciaResponse;
 import org.compilaceone.complianceone.ocorrencia.service.OcorrenciaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/ocorrencias")
@@ -28,5 +29,39 @@ public class OcorrenciaController {
                 .status(HttpStatus.CREATED)
                 .body(service.criar(request));
     }
-}
 
+    @GetMapping
+    public ResponseEntity<List<OcorrenciaResponse>> listarTodas() {
+
+        return ResponseEntity.ok(service.listarTodas());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<OcorrenciaResponse> buscarPorId(
+            @PathVariable UUID id
+    ) {
+
+        return ResponseEntity.ok(service.buscarPorId(id));
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<OcorrenciaResponse> atualizarStatus(
+            @PathVariable UUID id,
+            @RequestParam StatusOcorrencia status
+    ) {
+
+        return ResponseEntity.ok(
+                service.atualizarStatus(id, status)
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(
+            @PathVariable UUID id
+    ) {
+
+        service.deletar(id);
+
+        return ResponseEntity.noContent().build();
+    }
+}

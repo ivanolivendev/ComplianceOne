@@ -1,4 +1,4 @@
-package org.compilaceone.complianceone.config.security;
+package org.compilaceone.complianceone.security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
