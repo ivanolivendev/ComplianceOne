@@ -82,6 +82,7 @@ public class OcorrenciaService {
                 ocorrencia.getSetorRelacionado(),
                 ocorrencia.getStatus(),
                 ocorrencia.getObservacao(),
+                ocorrencia.getAnonima(),
                 ocorrencia.getDataCriacao()
         );
     }

@@ -22,6 +22,8 @@ public record OcorrenciaResponse(
 
         String observacao,
 
+        Boolean anonima,
+
         LocalDateTime dataCriacao
 
 ) {

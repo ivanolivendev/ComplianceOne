@@ -34,8 +34,9 @@ import java.util.UUID;
         @Column(columnDefinition = "TEXT", nullable = false)
         private String relato;
 
+        @Builder.Default
         @Column(nullable = false)
-        private Boolean anonima;
+        private Boolean anonima = false;
 
         @Enumerated(EnumType.STRING)
         @Column(nullable = false)
@@ -46,8 +47,9 @@ import java.util.UUID;
         @Column(columnDefinition = "TEXT")
         private String observacao;
 
+        @Builder.Default
         @Column(nullable = false)
-        private Boolean ativo;
+        private Boolean ativo = true;
 
         private LocalDateTime dataOcorrencia;
 
@@ -58,6 +60,9 @@ import java.util.UUID;
         public void prePersist() {
             if (this.ativo == null) {
                 this.ativo = true;
+            }
+            if (this.anonima == null) {
+                this.anonima = false;
             }
         }
     }
