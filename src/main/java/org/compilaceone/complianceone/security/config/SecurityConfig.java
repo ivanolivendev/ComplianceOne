@@ -55,20 +55,20 @@ public class SecurityConfig {
                 // CORRIGIDO: nome do método com 'r' e adicionado abaixo
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/api/v1/debug/**").permitAll()
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users").hasRole("DIRETORIA")
                         .requestMatchers(HttpMethod.POST, "/api/v1/ocorrencias").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/ocorrencias/*").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/ocorrencias").hasAnyRole("RH", "COMPLIANCE", "DIRETORIA")
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/ocorrencias/*/status").hasAnyRole("RH", "COMPLIANCE")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/ocorrencias/*").hasRole("DIRETORIA")
-                        .anyRequest().authenticated()
-                );
+                        .requestMatchers(HttpMethod.GET, "/api/v1/ocorrencias/protocolo/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/ocorrencias").hasAnyRole("RH", "COMPLIANCE", "DIRETORIA", "ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/ocorrencias/*/status").hasAnyRole("RH", "COMPLIANCE", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/ocorrencias/*").hasAnyRole("DIRETORIA", "ADMIN")
+                        .anyRequest().authenticated());
 
         return http.build();
     }

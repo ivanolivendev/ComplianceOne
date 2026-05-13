@@ -5,6 +5,7 @@ import lombok.*;
 import org.compilaceone.complianceone.ocorrencia.domain.enums.StatusOcorrencia;
 import org.compilaceone.complianceone.ocorrencia.domain.enums.TipoOcorrencia;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -16,6 +17,7 @@ import java.util.UUID;
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
+    @SQLRestriction("ativo = true")
     public class Ocorrencia {
 
         @Id
@@ -41,9 +43,22 @@ import java.util.UUID;
 
         private String setorRelacionado;
 
+        @Column(columnDefinition = "TEXT")
+        private String observacao;
+
+        @Column(nullable = false)
+        private Boolean ativo;
+
         private LocalDateTime dataOcorrencia;
 
         @CreationTimestamp
         private LocalDateTime dataCriacao;
+
+        @PrePersist
+        public void prePersist() {
+            if (this.ativo == null) {
+                this.ativo = true;
+            }
+        }
     }
 

@@ -1,0 +1,253 @@
+{
+	"_type": "export",
+	"__export_format": 4,
+	"__export_date": "2026-05-13T17:21:00.000Z",
+	"__export_source": "insomnia.desktop.app:v9.3.2",
+	"resources": [
+		{
+			"_id": "wrk_compliance_one",
+			"parentId": null,
+			"modified": 1715611200000,
+			"created": 1715611200000,
+			"name": "ComplianceOne API",
+			"description": "API de Gestão de Denúncias e Ocorrências",
+			"scope": "collection",
+			"_type": "workspace"
+		},
+		{
+			"_id": "env_dev",
+			"parentId": "wrk_compliance_one",
+			"modified": 1715611200000,
+			"created": 1715611200000,
+			"name": "Desenvolvimento",
+			"data": {
+				"base_url": "http://localhost:8080/api/v1"
+			},
+			"dataPropertyOrder": {
+				"&": ["base_url"]
+			},
+			"color": null,
+			"isPrivate": false,
+			"metaSortKey": 1715611200000,
+			"_type": "environment"
+		},
+		{
+			"_id": "fld_auth",
+			"parentId": "wrk_compliance_one",
+			"modified": 1715611200000,
+			"created": 1715611200000,
+			"name": "1. Autenticação",
+			"description": "",
+			"environment": {},
+			"environmentPropertyOrder": null,
+			"metaSortKey": -1715611200000,
+			"_type": "request_group"
+		},
+		{
+			"_id": "req_login_admin",
+			"parentId": "fld_auth",
+			"modified": 1715611200000,
+			"created": 1715611200000,
+			"url": "{{ _.base_url }}/auth/login",
+			"name": "Login Admin",
+			"description": "",
+			"method": "POST",
+			"body": {
+				"mimeType": "application/json",
+				"text": "{\n  \"email\": \"admin@complianceone.com\",\n  \"password\": \"admin123\"\n}"
+			},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1715611200000,
+			"isPrivate": false,
+			"_type": "request"
+		},
+		{
+			"_id": "req_login_rh",
+			"parentId": "fld_auth",
+			"modified": 1715611200000,
+			"created": 1715611200000,
+			"url": "{{ _.base_url }}/auth/login",
+			"name": "Login RH",
+			"description": "",
+			"method": "POST",
+			"body": {
+				"mimeType": "application/json",
+				"text": "{\n  \"email\": \"rh@example.com\",\n  \"password\": \"admin123\"\n}"
+			},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1715611100000,
+			"isPrivate": false,
+			"_type": "request"
+		},
+		{
+			"_id": "fld_ocorrencias",
+			"parentId": "wrk_compliance_one",
+			"modified": 1715611200000,
+			"created": 1715611200000,
+			"name": "2. Ocorrências",
+			"description": "",
+			"environment": {},
+			"environmentPropertyOrder": null,
+			"metaSortKey": -1715611000000,
+			"_type": "request_group"
+		},
+		{
+			"_id": "req_criar_ocorrencia",
+			"parentId": "fld_ocorrencias",
+			"modified": 1715611200000,
+			"created": 1715611200000,
+			"url": "{{ _.base_url }}/ocorrencias",
+			"name": "Criar Ocorrência (Público)",
+			"description": "",
+			"method": "POST",
+			"body": {
+				"mimeType": "application/json",
+				"text": "{\n  \"tipo\": \"ASSEDIO_MORAL\",\n  \"relato\": \"Denúncia de teste para o lançamento do sistema.\",\n  \"anonima\": true,\n  \"setorRelacionado\": \"TI\",\n  \"dataOcorrencia\": \"2026-05-13T10:00:00\"\n}"
+			},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1715611200000,
+			"isPrivate": false,
+			"_type": "request"
+		},
+		{
+			"_id": "req_listar_paginado",
+			"parentId": "fld_ocorrencias",
+			"modified": 1715611200000,
+			"created": 1715611200000,
+			"url": "{{ _.base_url }}/ocorrencias",
+			"name": "Listar Todas (Paginado)",
+			"description": "",
+			"method": "GET",
+			"body": {},
+			"parameters": [
+				{
+					"name": "page",
+					"value": "0"
+				},
+				{
+					"name": "size",
+					"value": "10"
+				},
+				{
+					"name": "sort",
+					"value": "dataCriacao,desc"
+				}
+			],
+			"headers": [],
+			"authentication": {
+				"type": "bearer",
+				"token": "COLE_TOKEN_AQUI"
+			},
+			"metaSortKey": -1715611100000,
+			"isPrivate": false,
+			"_type": "request"
+		},
+		{
+			"_id": "req_buscar_protocolo",
+			"parentId": "fld_ocorrencias",
+			"modified": 1715611200000,
+			"created": 1715611200000,
+			"url": "{{ _.base_url }}/ocorrencias/protocolo/PROT-0001",
+			"name": "Buscar por Protocolo (Público)",
+			"description": "",
+			"method": "GET",
+			"body": {},
+			"parameters": [],
+			"headers": [],
+			"authentication": {},
+			"metaSortKey": -1715611000000,
+			"isPrivate": false,
+			"_type": "request"
+		},
+		{
+			"_id": "req_atualizar_status",
+			"parentId": "fld_ocorrencias",
+			"modified": 1715611200000,
+			"created": 1715611200000,
+			"url": "{{ _.base_url }}/ocorrencias/ID_AQUI/status",
+			"name": "Atualizar Status + Feedback",
+			"description": "",
+			"method": "PATCH",
+			"body": {},
+			"parameters": [
+				{
+					"name": "status",
+					"value": "CONCLUIDA"
+				},
+				{
+					"name": "observacao",
+					"value": "A situação foi resolvida e o feedback foi aplicado."
+				}
+			],
+			"headers": [],
+			"authentication": {
+				"type": "bearer",
+				"token": "COLE_TOKEN_AQUI"
+			},
+			"metaSortKey": -1715610900000,
+			"isPrivate": false,
+			"_type": "request"
+		},
+		{
+			"_id": "fld_usuarios",
+			"parentId": "wrk_compliance_one",
+			"modified": 1715611200000,
+			"created": 1715611200000,
+			"name": "3. Gestão de Usuários",
+			"description": "",
+			"environment": {},
+			"environmentPropertyOrder": null,
+			"metaSortKey": -1715610800000,
+			"_type": "request_group"
+		},
+		{
+			"_id": "req_cadastrar_usuario",
+			"parentId": "fld_usuarios",
+			"modified": 1715611200000,
+			"created": 1715611200000,
+			"url": "{{ _.base_url }}/users",
+			"name": "Cadastrar Novo Usuário (Apenas DIRETORIA)",
+			"description": "",
+			"method": "POST",
+			"body": {
+				"mimeType": "application/json",
+				"text": "{\n  \"name\": \"Novo Investigador\",\n  \"email\": \"investigador@complianceone.com\",\n  \"password\": \"senha123\",\n  \"role\": \"INVESTIGADOR\"\n}"
+			},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"authentication": {
+				"type": "bearer",
+				"token": "COLE_TOKEN_DIRETORIA_AQUI"
+			},
+			"metaSortKey": -1715611200000,
+			"isPrivate": false,
+			"_type": "request"
+		}
+	]
+}
