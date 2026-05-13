@@ -1,0 +1,94 @@
+{
+  "project": "ComplianceOne",
+  "version": "1.0.0",
+  "api": {
+    "baseUrl": "http://localhost:8080/api/v1",
+    "authMethod": "Bearer JWT",
+    "header": "Authorization"
+  },
+  "endpoints": {
+    "auth": {
+      "login": {
+        "path": "/auth/login",
+        "method": "POST",
+        "request": { "email": "string", "password": "string" },
+        "response": { "accessToken": "string", "expiresIn": "number" }
+      }
+    },
+    "occurrences": {
+      "create": {
+        "path": "/ocorrencias",
+        "method": "POST",
+        "request": {
+          "tipo": "TipoOcorrencia",
+          "relato": "string (min 10, max 5000)",
+          "anonima": "boolean",
+          "setorRelacionado": "string (optional)",
+          "dataOcorrencia": "ISO8601 string (optional)"
+        },
+        "response": "OcorrenciaResponse"
+      },
+      "list": {
+        "path": "/ocorrencias",
+        "method": "GET",
+        "params": { "page": "number", "size": "number", "sort": "string" },
+        "roles": ["RH", "COMPLIANCE", "DIRETORIA", "ADMIN"]
+      },
+      "getByProtocol": {
+        "path": "/ocorrencias/protocolo/{protocolo}",
+        "method": "GET",
+        "public": true
+      },
+      "updateStatus": {
+        "path": "/ocorrencias/{id}/status",
+        "method": "PATCH",
+        "params": { "status": "StatusOcorrencia", "observacao": "string" },
+        "roles": ["RH", "COMPLIANCE", "ADMIN"]
+      }
+    },
+    "users": {
+      "create": {
+        "path": "/users",
+        "method": "POST",
+        "request": { "name": "string", "email": "string", "password": "string", "role": "Role" },
+        "roles": ["DIRETORIA", "ADMIN"]
+      }
+    }
+  },
+  "enums": {
+    "TipoOcorrencia": [
+      "ASSEDIO_MORAL",
+      "ASSEDIO_SEXUAL",
+      "DISCRIMINACAO",
+      "VIOLENCIA_PSICOLOGICA",
+      "RISCO_PSICOSSOCIAL",
+      "OUTROS"
+    ],
+    "StatusOcorrencia": [
+      "RECEBIDA",
+      "EM_ANALISE",
+      "CONCLUIDA",
+      "ARQUIVADA"
+    ],
+    "Role": [
+      "TRIAGEM",
+      "RH",
+      "COMPLIANCE",
+      "DIRETORIA",
+      "ADMIN"
+    ]
+  },
+  "models": {
+    "OcorrenciaResponse": {
+      "id": "UUID",
+      "protocolo": "string",
+      "tipo": "TipoOcorrencia",
+      "relato": "string",
+      "setorRelacionado": "string",
+      "status": "StatusOcorrencia",
+      "observacao": "string",
+      "anonima": "boolean",
+      "dataCriacao": "ISO8601 string"
+    }
+  }
+}

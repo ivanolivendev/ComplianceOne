@@ -1,89 +1,46 @@
 services:
-
   complianceone-api:
-
     build:
       context: .
       dockerfile: Dockerfile
-
     container_name: complianceone-api
-
     restart: unless-stopped
-
     ports:
       - "8080:8080"
-
     environment:
-
-      SPRING_PROFILES_ACTIVE: dev
-
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: complianceone
-      DB_USERNAME: postgres
-      DB_PASSWORD: postgres
-
-      JWT_SECRET: super-secret-jwt-key
-
-    command: mvn spring-boot:run
-
-    volumes:
-      - .:/app
-      - maven-cache:/root/.m2
-
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - DB_HOST=${DB_HOST:-postgres}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_NAME=${DB_NAME:-complianceone}
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - postgres
-
     networks:
       - compliance-network
 
   postgres:
-
-    image: postgres:16
-
+    image: postgres:16-alpine
     container_name: complianceone-postgres
-
     restart: unless-stopped
-
     environment:
-      POSTGRES_DB: complianceone
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-
+      POSTGRES_DB: ${DB_NAME:-complianceone}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
     ports:
       - "5433:5432"
-
     volumes:
       - postgres-data:/var/lib/postgresql/data
-
     networks:
       - compliance-network
 
-  pgadmin:
-
-    image: dpage/pgadmin4
-
-    container_name: complianceone-pgadmin
-
-    restart: unless-stopped
-
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@complianceone.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-
-    ports:
-      - "5050:80"
-
-    depends_on:
-      - postgres
-
-    networks:
-      - compliance-network
+# O pgadmin foi removido daqui para manter a configuração limpa.
+# Para gerenciar o banco localmente, use ferramentas como DBeaver ou conecte via porta 5433.
 
 volumes:
   postgres-data:
-  maven-cache:
 
 networks:
   compliance-network:
-    driver: bridge
+    driver: bridge
