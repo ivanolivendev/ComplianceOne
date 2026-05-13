@@ -61,7 +61,7 @@ public class SecurityConfig {
                         .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/api/v1/debug/**").permitAll()
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/users").hasRole("DIRETORIA")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users").hasAnyRole("DIRETORIA", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/ocorrencias").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/ocorrencias/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/ocorrencias/protocolo/*").permitAll()

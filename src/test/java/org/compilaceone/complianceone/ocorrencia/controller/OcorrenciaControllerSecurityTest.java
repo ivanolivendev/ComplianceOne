@@ -1,18 +1,16 @@
 package org.compilaceone.complianceone.ocorrencia.controller;
 
 import org.compilaceone.complianceone.ocorrencia.service.OcorrenciaService;
+import org.compilaceone.complianceone.security.config.SecurityConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.compilaceone.complianceone.security.config.SecurityConfig;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -20,46 +18,56 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(OcorrenciaController.class)
 @AutoConfigureMockMvc(addFilters = true)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, org.compilaceone.complianceone.security.filter.JwtAuthenticationFilter.class})
+@org.springframework.test.context.TestPropertySource(properties = {
+        "jwt.public.key=classpath:app.pub",
+        "jwt.private.key=classpath:app.key"
+})
 class OcorrenciaControllerSecurityTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private OcorrenciaService ocorrenciaService;
 
-    @MockBean
+    @MockitoBean
     private JwtDecoder jwtDecoder;
 
-    @MockBean
-    private UserDetailsService userDetailsService;
+    @MockitoBean
+    private org.springframework.security.oauth2.jwt.JwtEncoder jwtEncoder;
 
-    // Removemos a injeção do SecurityConfig pois o Spring Security Test já simula a segurança em WebMvcTest com os filtros adequados.
-    // Em alguns casos pode ser necessário fazer @Import do SecurityConfig e mockar o JwtDecoder,
-    // mas a anotação @WithMockUser costuma bypassar a necessidade do token de fato.
+    @MockitoBean
+    private org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
 
     @Test
-    @DisplayName("Acesso anônimo (sem token) a rota protegida deve retornar 403 Forbidden")
-    void naoDeveAcessarOcorrenciasSemAutenticacao() throws Exception {
+    @DisplayName("Acesso anônimo a GET /api/v1/ocorrencias deve retornar 403 Forbidden")
+    void acessoAnonimoDeveSerNegado() throws Exception {
         mockMvc.perform(get("/api/v1/ocorrencias"))
-               .andExpect(status().isForbidden()); // O Spring Boot sem token retorna 403 quando não há entry point customizado
+                .andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser(roles = "TRIAGEM")
-    @DisplayName("Usuário com cargo TRIAGEM tentando acessar GET /ocorrencias deve receber 403 Forbidden")
-    void triagemNaoPodeAcessarListaOcorrencias() throws Exception {
-        // A listagem exige "RH", "COMPLIANCE" ou "DIRETORIA"
+    @WithMockUser(roles = "COMUM")
+    @DisplayName("Usuário sem permissão (COMUM) deve retornar 403 Forbidden ao listar")
+    void usuarioSemPermissaoDeveSerNegado() throws Exception {
         mockMvc.perform(get("/api/v1/ocorrencias"))
-               .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("Usuário ADMIN deve ter acesso a GET /api/v1/ocorrencias")
+    void adminDeveTerAcesso() throws Exception {
+        mockMvc.perform(get("/api/v1/ocorrencias"))
+                .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser(roles = "RH")
-    @DisplayName("Usuário com cargo RH tentando acessar GET /ocorrencias deve receber 200 OK")
-    void rhPodeAcessarListaOcorrencias() throws Exception {
+    @DisplayName("Usuário RH deve ter acesso a GET /api/v1/ocorrencias")
+    void rhDeveTerAcesso() throws Exception {
         mockMvc.perform(get("/api/v1/ocorrencias"))
-               .andExpect(status().isOk());
+                .andExpect(status().isOk());
     }
 }

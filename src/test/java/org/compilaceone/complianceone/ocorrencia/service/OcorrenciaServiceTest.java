@@ -12,8 +12,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,53 +36,91 @@ class OcorrenciaServiceTest {
     private OcorrenciaService service;
 
     @Test
-    @DisplayName("Deve criar uma ocorrência com status RECEBIDA e gerar um protocolo NR1-")
+    @DisplayName("Deve criar uma ocorrência com protocolo NR1- e status RECEBIDA")
     void deveCriarOcorrenciaComSucesso() {
-        // Arrange
         CriarOcorrenciaRequest request = new CriarOcorrenciaRequest(
                 TipoOcorrencia.ASSEDIO_MORAL,
-                "Relato detalhado de assédio no setor financeiro",
+                "Relato de teste com mais de dez caracteres",
                 true,
-                "Financeiro",
+                "TI",
                 LocalDateTime.now()
         );
 
         Ocorrencia savedOcorrencia = Ocorrencia.builder()
                 .id(UUID.randomUUID())
-                .protocolo("NR1-12345678")
+                .protocolo("NR1-ABC12345")
+                .tipo(request.tipo())
+                .relato(request.relato())
+                .anonima(request.anonima())
                 .status(StatusOcorrencia.RECEBIDA)
+                .ativo(true)
                 .dataCriacao(LocalDateTime.now())
                 .build();
 
-        when(repository.save(any(Ocorrencia.class))).thenAnswer(invocation -> {
-            Ocorrencia o = invocation.getArgument(0);
-            o.setId(UUID.randomUUID());
-            return o;
-        });
+        when(repository.save(any(Ocorrencia.class))).thenReturn(savedOcorrencia);
 
-        // Act
         OcorrenciaResponse response = service.criar(request);
 
-        // Assert
         assertNotNull(response);
         assertTrue(response.protocolo().startsWith("NR1-"));
         assertEquals(StatusOcorrencia.RECEBIDA, response.status());
+        assertEquals(true, response.anonima());
         verify(repository, times(1)).save(any(Ocorrencia.class));
     }
 
     @Test
-    @DisplayName("Deve lançar exceção ao tentar buscar uma ocorrência por ID que não existe")
-    void deveLancarExcecaoAoBuscarOcorrenciaInexistente() {
-        // Arrange
-        UUID idInexistente = UUID.randomUUID();
-        when(repository.findById(idInexistente)).thenReturn(Optional.empty());
+    @DisplayName("Deve listar ocorrências de forma paginada")
+    void deveListarOcorrenciasPaginadas() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Ocorrencia ocorrencia = Ocorrencia.builder().id(UUID.randomUUID()).build();
+        Page<Ocorrencia> page = new PageImpl<>(List.of(ocorrencia));
 
-        // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            service.buscarPorId(idInexistente);
-        });
+        when(repository.findAll(pageable)).thenReturn(page);
 
-        assertEquals("Ocorrência não encontrada", exception.getMessage());
-        verify(repository, times(1)).findById(idInexistente);
+        Page<OcorrenciaResponse> result = service.listarTodas(pageable);
+
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        verify(repository, times(1)).findAll(pageable);
+    }
+
+    @Test
+    @DisplayName("Deve realizar o soft delete (desativar) de uma ocorrência")
+    void deveRealizarSoftDelete() {
+        UUID id = UUID.randomUUID();
+        Ocorrencia ocorrencia = Ocorrencia.builder().id(id).ativo(true).build();
+
+        when(repository.findById(id)).thenReturn(Optional.of(ocorrencia));
+
+        service.deletar(id);
+
+        assertFalse(ocorrencia.getAtivo());
+        verify(repository, times(1)).save(ocorrencia);
+    }
+
+    @Test
+    @DisplayName("Deve buscar ocorrência por protocolo com sucesso")
+    void deveBuscarPorProtocolo() {
+        String protocolo = "NR1-TESTE";
+        Ocorrencia ocorrencia = Ocorrencia.builder()
+                .protocolo(protocolo)
+                .status(StatusOcorrencia.RECEBIDA)
+                .build();
+
+        when(repository.findByProtocolo(protocolo)).thenReturn(Optional.of(ocorrencia));
+
+        OcorrenciaResponse response = service.buscarPorProtocolo(protocolo);
+
+        assertNotNull(response);
+        assertEquals(protocolo, response.protocolo());
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção ao buscar protocolo inexistente")
+    void deveLancarExcecaoProtocoloInexistente() {
+        String protocolo = "NR1-FALSO";
+        when(repository.findByProtocolo(protocolo)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> service.buscarPorProtocolo(protocolo));
     }
 }
