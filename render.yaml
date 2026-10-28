@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: complianceone-api
+    runtime: docker
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: DB_HOST
+        value: dpg-dbgug167bikc73825gkg-a
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_NAME
+        value: complianceone
+      - key: DB_USERNAME
+        value: complianceone_user
+      - key: DB_PASSWORD
+        sync: false
