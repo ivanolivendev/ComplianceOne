@@ -7,10 +7,9 @@ import org.compilaceone.complianceone.security.dto.UserResponseDTO;
 import org.compilaceone.complianceone.security.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -22,5 +21,13 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserResponseDTO> create(@RequestBody @Valid UserRequestDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.create(request));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UserResponseDTO>> list() { return ResponseEntity.ok(userService.list()); }
+
+    @PatchMapping("/{id}/active")
+    public ResponseEntity<UserResponseDTO> setActive(@PathVariable UUID id, @RequestParam boolean active) {
+        return ResponseEntity.ok(userService.setActive(id, active));
     }
 }

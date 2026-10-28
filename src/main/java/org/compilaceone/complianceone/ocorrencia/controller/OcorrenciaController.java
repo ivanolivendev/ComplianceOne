@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.compilaceone.complianceone.ocorrencia.domain.enums.StatusOcorrencia;
 import org.compilaceone.complianceone.ocorrencia.dto.CriarOcorrenciaRequest;
 import org.compilaceone.complianceone.ocorrencia.dto.OcorrenciaResponse;
+import org.compilaceone.complianceone.ocorrencia.dto.HistoricoResponse;
 import org.compilaceone.complianceone.ocorrencia.service.OcorrenciaService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +43,11 @@ public class OcorrenciaController {
     @GetMapping("/protocolo/{protocolo}")
     public ResponseEntity<OcorrenciaResponse> buscarPorProtocolo(@PathVariable String protocolo) {
         return ResponseEntity.ok(service.buscarPorProtocolo(protocolo));
+    }
+
+    @GetMapping("/{id}/historico")
+    public ResponseEntity<java.util.List<HistoricoResponse>> historico(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.historico(id));
     }
 
     @PatchMapping("/{id}/status")

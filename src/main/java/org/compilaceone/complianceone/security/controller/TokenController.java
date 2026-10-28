@@ -44,6 +44,7 @@ public class TokenController {
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(expiresIn))
                 .claim("role", user.getRole().name())
+                .claim("name", user.getName())
                 .build();
 
         var jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
