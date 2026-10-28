@@ -4,12 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.compilaceone.complianceone.security.entity.User;
 import org.compilaceone.complianceone.security.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
 @RestController
+@Profile("dev")
 @RequestMapping("/api/v1/debug")
 @RequiredArgsConstructor
 public class DebugAuthController {

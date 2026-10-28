@@ -19,11 +19,13 @@ public class RestExceptionHandler {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         
         // Se a mensagem for "não encontrada", retornamos 404
-        if (ex.getMessage().toLowerCase().contains("não encontrada")) {
+        String message = ex.getMessage() == null ? "Erro interno" : ex.getMessage();
+        if (message.toLowerCase().contains("não encontrada") ||
+                message.toLowerCase().contains("não encontrado")) {
             status = HttpStatus.NOT_FOUND;
         }
 
-        ExceptionDTO error = new ExceptionDTO(status, ex.getMessage(), request.getRequestURI());
+        ExceptionDTO error = new ExceptionDTO(status, message, request.getRequestURI());
         return ResponseEntity.status(status).body(error);
     }
 
